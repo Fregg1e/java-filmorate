@@ -2,15 +2,17 @@ package ru.yandex.practicum.filmorate.util.validator.date;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.time.LocalDate;
 
-public class LocalDateValidate implements ConstraintValidator<FilmDateConstrain, String> {
+public class PastLocalDateValidate implements ConstraintValidator<PastLocalDateConstrain, LocalDate> {
+    private LocalDate currentDate;
     @Override
-    public void initialize(FilmDateConstrain constraintAnnotation) {
-        ConstraintValidator.super.initialize(constraintAnnotation);
+    public void initialize(PastLocalDateConstrain constraintAnnotation) {
+        currentDate = LocalDate.parse(constraintAnnotation.current());
     }
 
     @Override
-    public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        return false;
+    public boolean isValid(LocalDate date, ConstraintValidatorContext constraintValidatorContext) {
+        return date.isEqual(currentDate) || date.isAfter(currentDate);
     }
 }

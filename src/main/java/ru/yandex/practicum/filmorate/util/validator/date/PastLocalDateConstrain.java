@@ -1,9 +1,13 @@
 package ru.yandex.practicum.filmorate.util.validator.date;
 
 import javax.validation.Constraint;
-import java.lang.annotation.Documented;
+import java.lang.annotation.*;
 
 @Documented
-@Constraint(validatedBy = LocalDateValidate.class)
-public @interface FilmDateConstrain {
+@Constraint(validatedBy = PastLocalDateValidate.class)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface PastLocalDateConstrain {
+    String message() default "Неправильная дата.";
+    String current();
 }
