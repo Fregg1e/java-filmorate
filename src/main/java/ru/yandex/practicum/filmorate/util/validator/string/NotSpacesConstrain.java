@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.util.validator.string;
 
 import javax.validation.Constraint;
+import javax.validation.Payload;
 import java.lang.annotation.*;
 
 @Documented
@@ -9,4 +10,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NotSpacesConstrain {
     String message() default "Неправильная строка.";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
 }
