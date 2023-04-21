@@ -9,6 +9,6 @@ public class NotSpacesValidate implements ConstraintValidator<NotSpacesConstrain
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        return !s.contains(" ");
+        return s != null && !s.contains(" ");
     }
 }
