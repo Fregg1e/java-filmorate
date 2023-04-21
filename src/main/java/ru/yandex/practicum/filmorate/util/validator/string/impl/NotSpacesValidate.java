@@ -1,4 +1,6 @@
-package ru.yandex.practicum.filmorate.util.validator.string;
+package ru.yandex.practicum.filmorate.util.validator.string.impl;
+
+import ru.yandex.practicum.filmorate.util.validator.string.NotSpacesConstrain;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
