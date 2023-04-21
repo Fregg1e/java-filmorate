@@ -15,7 +15,8 @@ public class User {
     @EqualsAndHashCode.Exclude
     private Long id;
     @NotBlank(message = "Email не может быть пустым.")
-    @Email(message = "Email не соответствует должному формату.")
+    @Email(regexp = "^[a-zA-Z\\.\\-\\_]+[@][a-zA-Z\\.]+[\\.].+$",
+            message = "Email не соответствует должному формату.")
     private String email;
     @NotBlank(message = "Логин не может быть пустым.")
     @NotSpacesConstrain(message = "Логин содержит пробелы.")
