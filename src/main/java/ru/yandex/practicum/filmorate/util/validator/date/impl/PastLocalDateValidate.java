@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 public class PastLocalDateValidate implements ConstraintValidator<PastLocalDateConstrain, LocalDate> {
     private LocalDate currentDate;
+
     @Override
     public void initialize(PastLocalDateConstrain constraintAnnotation) {
         currentDate = LocalDate.parse(constraintAnnotation.current());
