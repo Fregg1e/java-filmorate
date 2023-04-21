@@ -21,6 +21,6 @@ public class Film {
     @PastLocalDateConstrain(current = "1895-12-28", message = "Дата релиза не может быть раньше 1895-12-28.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
-    @Positive(message = "Продолжительность должна быть положительной.")
+    @Positive(message = "Продолжительность должна быть положительной и не равна null.")
     private Integer duration;
 }
