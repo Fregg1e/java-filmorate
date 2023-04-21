@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.util.validator.date.PastLocalDateConstrain;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
+    @EqualsAndHashCode.Exclude
     private Long id;
     @NotBlank(message = "Название не может быть пустым.")
     private String name;

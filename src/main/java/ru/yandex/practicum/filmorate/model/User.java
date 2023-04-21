@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.util.validator.string.NotSpacesConstrain;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 
 @Data
 public class User {
+    @EqualsAndHashCode.Exclude
     private Long id;
     @NotBlank(message = "Email не может быть пустым.")
     @Email(message = "Email не соответствует должному формату.")
@@ -22,4 +24,16 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть позже чем сегодня.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        if (name == null) {
+            this.name = login;
+        } else {
+            this.name = name;
+        }
+        this.birthday = birthday;
+    }
 }
