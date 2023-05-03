@@ -1,46 +1,40 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.util.exception.ValidationException;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
+@Service
 public class FilmService {
     private final IdGenerator idGenerator;
-    private final Map<Long, Film> films;
+    private final FilmStorage filmStorage;
 
-    public FilmService() {
-        idGenerator = new IdGenerator();
-        films = new HashMap<>();
+    @Autowired
+    public FilmService(IdGenerator idGenerator, FilmStorage filmStorage) {
+        this.idGenerator = idGenerator;
+        this.filmStorage = filmStorage;
     }
 
     public List<Film> getAll() {
-        return new ArrayList<>(films.values());
+        return new ArrayList<>(filmStorage.getAll().values());
     }
 
     public Film create(Film film) {
-        if (films.containsValue(film)) {
-            log.error("Произошло исключение!");
-            throw new ValidationException("Такой фильм уже существует.");
-        }
         film.setId(idGenerator.generateId());
-        films.put(film.getId(), film);
+        filmStorage.create(film);
         log.debug("Создан фильм: {}", film);
         return film;
     }
 
     public Film update(Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.error("Произошло исключение!");
-            throw new ValidationException("Такого фильма не существует.");
-        }
-        films.put(film.getId(), film);
+        filmStorage.update(film);
         log.debug("Фильм с id={} обновлен.", film.getId());
         return film;
     }
