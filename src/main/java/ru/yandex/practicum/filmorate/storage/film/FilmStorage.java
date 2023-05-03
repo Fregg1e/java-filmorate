@@ -9,5 +9,5 @@ public interface FilmStorage {
     Film getById(Long id);
     void create(Film film);
     void update(Film film);
-    void delete(Long id);
+    void deleteById(Long id);
 }
