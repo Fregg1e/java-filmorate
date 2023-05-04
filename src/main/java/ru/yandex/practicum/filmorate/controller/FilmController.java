@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.util.exception.IncorrectParameterException;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -36,10 +36,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        if (count <= 0) {
-            throw new IncorrectParameterException("count");
-        }
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) @Positive Integer count) {
         return filmService.getPopularFilms(count);
     }
 

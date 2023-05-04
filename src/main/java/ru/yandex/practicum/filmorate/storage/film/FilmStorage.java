@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public interface FilmStorage {
 
     void deleteById(Long id);
 
-    void addLike(Long id, Long userId);
+    void addLike(Long id, User user);
 
-    void removeLike(Long id, Long userId);
+    void removeLike(Long id, User user);
 }
