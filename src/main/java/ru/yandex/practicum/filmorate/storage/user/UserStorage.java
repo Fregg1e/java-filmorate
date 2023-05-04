@@ -6,10 +6,16 @@ import java.util.Map;
 
 public interface UserStorage {
     Map<Long, User> getAll();
+
     User getUserById(Long id);
+
     void create(User user);
+
     void update(User user);
+
     void deleteById(Long id);
+
     void addFriend(Long id, Long friendId);
+    
     void removeFriend(Long id, Long friendId);
 }
