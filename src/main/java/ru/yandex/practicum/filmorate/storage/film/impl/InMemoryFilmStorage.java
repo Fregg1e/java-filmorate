@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.util.exception.ValidationException;
+import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void create(Film film) {
         if (films.containsValue(film)) {
             log.error("Произошло исключение!");
-            throw new ValidationException("Такой фильм уже существует.");
+            throw new AlreadyExistException("Такой фильм уже существует.");
         }
         films.put(film.getId(), film);
     }
@@ -41,7 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void update(Film film) {
         if (!films.containsKey(film.getId())) {
             log.error("Произошло исключение!");
-            throw new ValidationException("Такого фильма не существует.");
+            throw new NotFoundException("Такого фильма не существует.");
         }
         films.put(film.getId(), film);
     }

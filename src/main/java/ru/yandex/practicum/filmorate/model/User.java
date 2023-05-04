@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,6 +10,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -25,16 +28,27 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть позже чем сегодня.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private Set<Long> friends = new HashSet<>();
 
     public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
-        if (name == null) {
+        if (name == null || name.equals("")) {
             this.name = login;
         } else {
             this.name = name;
         }
         this.birthday = birthday;
+    }
+
+    public void addFriend(Long id) {
+        friends.add(id);
+    }
+
+    public void removeFriend(Long id) {
+        friends.remove(id);
     }
 }
