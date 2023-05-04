@@ -25,7 +25,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(Long id) {
+    public Film getFilmById(Long id) {
+        if (!films.containsKey(id)) {
+            log.error("Произошло исключение!");
+            throw new NotFoundException("Такого фильма не существует.");
+        }
         return films.get(id);
     }
 
@@ -50,5 +54,23 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteById(Long id) {
         films.remove(id);
+    }
+
+    @Override
+    public void addLike(Long id, Long userId) {
+        if (!films.containsKey(id)) {
+            log.error("Произошло исключение!");
+            throw new NotFoundException("Такого фильма не существует.");
+        }
+        films.get(id).addLike(userId);
+    }
+
+    @Override
+    public void removeLike(Long id, Long userId) {
+        if (!films.containsKey(id)) {
+            log.error("Произошло исключение!");
+            throw new NotFoundException("Такого фильма не существует.");
+        }
+        films.get(id).removeLike(userId);
     }
 }
