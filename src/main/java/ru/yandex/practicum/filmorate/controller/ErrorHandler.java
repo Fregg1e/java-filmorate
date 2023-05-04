@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
-import ru.yandex.practicum.filmorate.util.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
 @RestControllerAdvice
@@ -16,23 +15,17 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         return new ErrorResponse(
-                String.format("Ошибка с полем \"%s\".", e.getParameter())
+                String.format("Ошибка с полем \"%s\".", e.getParameter()),
+                HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIncorrectParameterException(final IncorrectParameterException e) {
-        return new ErrorResponse(
-                String.format("Ошибка с полем \"%s\".", e.getParameter())
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleAlreadyExistException(final AlreadyExistException e) {
         return new ErrorResponse(
-                e.getMessage()
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
         );
     }
 
@@ -40,7 +33,8 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         return new ErrorResponse(
-                e.getMessage()
+                e.getMessage(),
+                HttpStatus.NOT_FOUND
         );
     }
 }
