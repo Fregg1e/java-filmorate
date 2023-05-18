@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.util.validator.date.PastLocalDateConstrain;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -27,6 +28,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность должна быть положительной.")
     private Integer duration;
+    private Set<String> genre;
+    @NotNull(message = "Рейтинг не может быть пустым.")
+    private FilmRating rating;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Set<Long> likes = new HashSet<>();
