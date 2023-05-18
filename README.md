@@ -67,3 +67,67 @@ Java-Filmorate - это сервис для работы с фильмами и 
 Таблица включает такие поля:
 * первичный ключ и внешний ключ `film_id` - идентификатор фильма
 * внешний ключ `user_id` - идентификатор пользователя
+
+### Примеры основных запросов:
+* Получение всех пользователей:
+```
+SELECT *
+FROM user;
+```
+* Получение пользователя с id = 1:
+```
+SELECT *
+FROM user
+WHERE id = 1;
+```
+* Получение друзей пользователя с id = 1:
+```
+SELECT f.friend_id,
+       f.status,
+       u.email,
+       u.login,
+       u.name,
+       u.birthday
+FROM friends AS f
+LEFT OUTER JOIN user AS u ON f.friend_id = u.id
+WHERE f.user_id = 1 AND f.status = 'true';
+```
+* Получение общих друзей пользователей с id = 1 и id = 2:
+```
+SELECT f.friend_id,
+       f.status,
+       u.email,
+       u.login,
+       u.name,
+       u.birthday
+FROM friends AS f
+LEFT OUTER JOIN user AS u ON f.friend_id = u.id
+WHERE f.user_id = 1 OR f.user_id = 2
+GROUP BY f.friend_id;
+```
+* Получение всех фильмов:
+```
+SELECT *
+FROM film;
+```
+* Получение фильма с id = 1:
+```
+SELECT *
+FROM film
+WHERE id = 1;
+```
+* Получение топ 10 популярных фильмов:
+```
+SELECT l.film_id,
+       f.name,
+       f.description,
+       f.release,
+       f.duration,
+       r.name AS film_rating
+FROM likes AS l
+LEFT OUTER JOIN film AS f ON l.film_id = f.id
+LEFT OUTER JOIN rating AS r ON f.rating = r.id
+GROUP BY l.film_id
+ORDER BY COUNT(l.user_id) DESC
+LIMIT 10;
+```
