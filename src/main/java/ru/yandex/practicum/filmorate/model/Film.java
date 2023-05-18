@@ -28,8 +28,11 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность должна быть положительной.")
     private Integer duration;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     private Set<String> genre;
-    @NotNull(message = "Рейтинг не может быть пустым.")
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     private FilmRating rating;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
