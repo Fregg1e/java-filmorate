@@ -73,7 +73,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Произошло исключение!");
             throw new NotFoundException("Такого пользователя не существует.");
         }
-        if (!users.get(id).getFriends().contains(friendId)) {
+        if (!users.get(id).getFriends().containsKey(friendId)) {
             log.error("Произошло исключение!");
             throw new NotFoundException("Такого пользователя нет в друзьях.");
         }
