@@ -20,7 +20,7 @@ Java-Filmorate - это сервис для работы с фильмами и 
 ### Описание диаграммы:
 **user** - содержит данные о пользователях\
 Таблица включает такие поля:
-* первичный ключ `id` - идентификатор пользователя
+* первичный ключ `user_id` - идентификатор пользователя
 * `email` - почта пользователя
 * `login` - логин пользователя
 * `name` - имя пользователя
@@ -31,12 +31,12 @@ Java-Filmorate - это сервис для работы с фильмами и 
 * первичный ключ №1 и внешний ключ `user_id` - идентификатор пользователя
 * первичный ключ №2 и внешний ключ `friend_id` - идентификатор друга пользователя
 * `status` - статус дружбы
-  - `fasle` - ожидает подтверждения
+  - `false` - ожидает подтверждения
   - `true` - дружба подтверждена
 
 **film** - содержит данные о фильмах\
 Таблица включает такие поля:
-* первичный ключ `id` - идентификатор фильма
+* первичный ключ `film_id` - идентификатор фильма
 * `name` - название фильма
 * `description` - описание фильма
 * `release` - дата выхода фильма
@@ -45,7 +45,7 @@ Java-Filmorate - это сервис для работы с фильмами и 
 
 **rating** - содержит типы возрастных рейтингов Ассоциации кинокомпаний
 Таблица включает такие поля:
-* первичный ключ `id` - идентификатор возрастного рейтинга
+* первичный ключ `rating_id` - идентификатор возрастного рейтинга
 * `name` - название возрастного рейтинга:
   - `G`
   - `PG`
@@ -55,7 +55,7 @@ Java-Filmorate - это сервис для работы с фильмами и 
 
 **genre** - содержит типы жанров
 Таблица включает такие поля:
-* первичный ключ `id` - идентификатор жанра
+* первичный ключ `genre_id` - идентификатор жанра
 * `name` - название жанра
 
 **film_genre** - содержит данные жанрах фильмов
@@ -78,7 +78,7 @@ FROM user;
 ```
 SELECT *
 FROM user
-WHERE id = 1;
+WHERE user_id = 1;
 ```
 * Получение друзей пользователя с id = 1:
 ```
@@ -89,21 +89,20 @@ SELECT f.friend_id,
        u.name,
        u.birthday
 FROM friends AS f
-LEFT OUTER JOIN user AS u ON f.friend_id = u.id
+LEFT OUTER JOIN user AS u ON f.friend_id = u.user_id
 WHERE f.user_id = 1 AND f.status = 'true';
 ```
 * Получение общих друзей пользователей с id = 1 и id = 2:
 ```
-SELECT f.friend_id,
+SELECT DISTINCT f.friend_id,
        f.status,
        u.email,
        u.login,
        u.name,
        u.birthday
 FROM friends AS f
-LEFT OUTER JOIN user AS u ON f.friend_id = u.id
-WHERE f.user_id = 1 OR f.user_id = 2
-GROUP BY f.friend_id;
+LEFT OUTER JOIN user AS u ON f.friend_id = u.user_id
+WHERE (f.user_id = 1 OR f.user_id = 2) AND f.status = 'true';
 ```
 * Получение всех фильмов:
 ```
@@ -114,7 +113,7 @@ FROM film;
 ```
 SELECT *
 FROM film
-WHERE id = 1;
+WHERE film_id = 1;
 ```
 * Получение топ 10 популярных фильмов:
 ```
@@ -125,8 +124,8 @@ SELECT l.film_id,
        f.duration,
        r.name AS film_rating
 FROM likes AS l
-LEFT OUTER JOIN film AS f ON l.film_id = f.id
-LEFT OUTER JOIN rating AS r ON f.rating = r.id
+LEFT OUTER JOIN film AS f ON l.film_id = f.film_id
+LEFT OUTER JOIN rating AS r ON f.rating = r.rating_id
 GROUP BY l.film_id
 ORDER BY COUNT(l.user_id) DESC
 LIMIT 10;
