@@ -29,6 +29,12 @@ public class Film {
     private Integer duration;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    private Set<String> genre;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private FilmRating rating;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     private Set<Long> likes = new HashSet<>();
 
     public void addLike(Long id) {

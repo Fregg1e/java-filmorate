@@ -10,8 +10,8 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 public class User {
@@ -30,7 +30,7 @@ public class User {
     private LocalDate birthday;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<Long> friends = new HashSet<>();
+    private Map<Long, Boolean> friends = new HashMap<>();
 
     public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
@@ -45,7 +45,11 @@ public class User {
     }
 
     public void addFriend(Long id) {
-        friends.add(id);
+        friends.put(id, false);
+    }
+
+    public void confirmFriendRequest(Long id) {
+        friends.put(id, true);
     }
 
     public void removeFriend(Long id) {
