@@ -102,7 +102,13 @@ SELECT DISTINCT f.friend_id,
        u.birthday
 FROM friends AS f
 LEFT OUTER JOIN user AS u ON f.friend_id = u.user_id
-WHERE (f.user_id = 1 OR f.user_id = 2) AND f.status = 'true';
+WHERE f.user_id = 1 
+      AND f.status = 'true' 
+      AND f.friend_id IN (
+          SELECT friend_id
+          FROM friends
+          WHERE user_id = 2
+      );
 ```
 * Получение всех фильмов:
 ```
