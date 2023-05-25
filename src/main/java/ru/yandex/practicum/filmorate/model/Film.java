@@ -30,9 +30,7 @@ public class Film {
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Set<String> genre;
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    private FilmRating rating;
+    private MPA mpa;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     private Set<Long> likes = new HashSet<>();
