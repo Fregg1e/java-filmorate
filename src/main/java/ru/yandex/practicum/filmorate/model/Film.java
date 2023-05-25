@@ -27,9 +27,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность должна быть положительной.")
     private Integer duration;
-    @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<String> genre;
+    private Set<Genre> genres;
+    @EqualsAndHashCode.Exclude
     private MPA mpa;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
