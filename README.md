@@ -18,121 +18,125 @@ Java-Filmorate - это сервис для работы с фильмами и 
 ![DB diagram](DBDiagram.png)
 
 ### Описание диаграммы:
-**user** - содержит данные о пользователях\
+**USERS** - содержит данные о пользователях\
 Таблица включает такие поля:
-* первичный ключ `user_id` - идентификатор пользователя
-* `email` - почта пользователя
-* `login` - логин пользователя
-* `name` - имя пользователя
-* `birthday` - день рождение пользователя
+* первичный ключ `USER_ID` - идентификатор пользователя
+* `EMAIL` - почта пользователя
+* `LOGIN` - логин пользователя
+* `USER_NAME` - имя пользователя
+* `BIRTHDAY` - день рождение пользователя
 
-**friends** - содержит данные о друзьях пользователя\
+**FRIENDS** - содержит данные о друзьях пользователя\
 Таблица включает такие поля:
-* первичный ключ №1 и внешний ключ `user_id` - идентификатор пользователя
-* первичный ключ №2 и внешний ключ `friend_id` - идентификатор друга пользователя
-* `status` - статус дружбы
-  - `false` - ожидает подтверждения
-  - `true` - дружба подтверждена
+* первичный ключ №1 и внешний ключ `USER_ID` - идентификатор пользователя
+* первичный ключ №2 и внешний ключ `FRIEND_ID` - идентификатор друга пользователя
+* `STATUS` - статус дружбы
+  - `FALSE` - ожидает подтверждения
+  - `TRUE` - дружба подтверждена
 
-**film** - содержит данные о фильмах\
+**FILMS** - содержит данные о фильмах\
 Таблица включает такие поля:
-* первичный ключ `film_id` - идентификатор фильма
-* `name` - название фильма
-* `description` - описание фильма
-* `release` - дата выхода фильма
-* `duration` - продолжительность (в минутах) фильма
-* внешний ключ `rating` - идентификатор возрастного рейтинга
+* первичный ключ `FILM_ID` - идентификатор фильма
+* `FILM_NAME` - название фильма
+* `DESCRIPTION` - описание фильма
+* `RELEASE_DATE` - дата выхода фильма
+* `DURATION` - продолжительность (в минутах) фильма
+* внешний ключ `MPA_ID` - идентификатор возрастного рейтинга
 
-**rating** - содержит типы возрастных рейтингов Ассоциации кинокомпаний
+**MPA** - содержит типы возрастных рейтингов Ассоциации кинокомпаний
 Таблица включает такие поля:
-* первичный ключ `rating_id` - идентификатор возрастного рейтинга
-* `name` - название возрастного рейтинга:
+* первичный ключ `MPA_ID` - идентификатор возрастного рейтинга
+* `MPA_NAME` - название возрастного рейтинга:
   - `G`
   - `PG`
-  - `PG13`
+  - `PG-13`
   - `R`
-  - `NC17`
+  - `NC-17`
 
-**genre** - содержит типы жанров
+**GENRES** - содержит типы жанров
 Таблица включает такие поля:
-* первичный ключ `genre_id` - идентификатор жанра
-* `name` - название жанра
+* первичный ключ `GENRE_ID` - идентификатор жанра
+* `GENRE_NAME` - название жанра:
+  - `Комедия`
+  - `Драма`
+  - `Мультфильм`
+  - `Триллер`
+  - `Документальный`
+  - `Боевик`
 
-**film_genre** - содержит данные жанрах фильмов
+**FILMS_GENRES** - содержит данные жанрах фильмов
 Таблица включает такие поля:
-* первичный ключ №1 и внешний ключ `film_id` - идентификатор фильма
-* первичный ключ №2 и внешний ключ `genre_id` - идентификатор жанра
+* первичный ключ №1 и внешний ключ `FILM_ID` - идентификатор фильма
+* первичный ключ №2 и внешний ключ `GENRE_ID` - идентификатор жанра
 
-**likes** - содержит данные поставленных лайках фильмам
+**LIKES** - содержит данные поставленных лайках фильмам
 Таблица включает такие поля:
-* первичный ключ №1 и внешний ключ `film_id` - идентификатор фильма
-* первичный ключ №2 и внешний ключ `user_id` - идентификатор пользователя
+* первичный ключ №1 и внешний ключ `FILM_ID` - идентификатор фильма
+* первичный ключ №2 и внешний ключ `USER_ID` - идентификатор пользователя
 
 ### Примеры основных запросов:
 * Получение всех пользователей:
 ```
 SELECT *
-FROM user;
+FROM USERS;
 ```
 * Получение пользователя с id = 1:
 ```
 SELECT *
-FROM user
-WHERE user_id = 1;
+FROM USERS
+WHERE USER_ID = 1;
 ```
 * Получение друзей пользователя с id = 1:
 ```
-SELECT f.friend_id,
-       f.status,
-       u.email,
-       u.login,
-       u.name,
-       u.birthday
-FROM friends AS f
-LEFT OUTER JOIN user AS u ON f.friend_id = u.user_id
-WHERE f.user_id = 1 AND f.status = 'true';
+SELECT F.FRIEND_ID,
+       U.EMAIL,
+       U.LOGIN,
+       U.USER_NAME,
+       U.BIRTHDAY
+FROM FRIENDS AS F
+LEFT OUTER JOIN USERS AS U ON F.FRIEND_ID = U.USER_ID
+WHERE F.USER_ID = 1 AND F.STATUS = 'TRUE';
 ```
 * Получение общих друзей пользователей с id = 1 и id = 2:
 ```
-SELECT DISTINCT f.friend_id,
-       f.status,
-       u.email,
-       u.login,
-       u.name,
-       u.birthday
-FROM friends AS f
-LEFT OUTER JOIN user AS u ON f.friend_id = u.user_id
-WHERE f.user_id = 1 
-      AND f.status = 'true' 
-      AND f.friend_id IN (
-          SELECT friend_id
-          FROM friends
-          WHERE user_id = 2
+SELECT F.FRIEND_ID,
+       U.EMAIL,
+       U.LOGIN,
+       U.USER_NAME,
+       U.BIRTHDAY
+FROM FRIENDS AS F
+LEFT OUTER JOIN USERS AS U ON F.FRIEND_ID = U.USER_ID
+WHERE F.USER_ID = 1 
+      AND F.STATUS = 'TRUE'
+      AND F.FRIEND_ID IN (
+          SELECT FRIEND_ID
+          FROM FRIENDS
+          WHERE USER_ID = 2
       );
 ```
 * Получение всех фильмов:
 ```
 SELECT *
-FROM film;
+FROM FILMS;
 ```
 * Получение фильма с id = 1:
 ```
 SELECT *
-FROM film
-WHERE film_id = 1;
+FROM FILMS
+WHERE FILM_ID = 1;
 ```
 * Получение топ 10 популярных фильмов:
 ```
-SELECT l.film_id,
-       f.name,
-       f.description,
-       f.release,
-       f.duration,
-       r.name AS film_rating
-FROM likes AS l
-LEFT OUTER JOIN film AS f ON l.film_id = f.film_id
-LEFT OUTER JOIN rating AS r ON f.rating = r.rating_id
-GROUP BY l.film_id
-ORDER BY COUNT(l.user_id) DESC
+SELECT L.FILM_ID,
+       F.FILM_NAME,
+       F.DESCRIPTION,
+       F.RELEASE_DATE,
+       F.DURATION,
+       M.MPA_NAME
+FROM LIKES AS L
+LEFT OUTER JOIN FILMS AS F ON L.FILM_ID = F.FILM_ID
+LEFT OUTER JOIN MPA AS M ON F.MPA_ID = M.MPA_ID
+GROUP BY L.FILM_ID
+ORDER BY COUNT(L.USER_ID) DESC
 LIMIT 10;
 ```
