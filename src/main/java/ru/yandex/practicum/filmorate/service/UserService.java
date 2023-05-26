@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +26,7 @@ public class UserService {
     }
 
     public List<User> getAll() {
-        return new ArrayList<>(userStorage.getAll().values());
+        return userStorage.getAll();
     }
 
     public User getUserById(Long id) {
@@ -58,13 +57,13 @@ public class UserService {
     }
 
     public List<User> getUserFriends(Long id) {
-        Set<Long> userFriendsId = userStorage.getUserById(id).getFriends().keySet();
+        Set<Long> userFriendsId = userStorage.getUserById(id).getFriends();
         return userFriendsId.stream().map(userStorage::getUserById).collect(Collectors.toList());
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
-        Set<Long> userFriends = userStorage.getUserById(id).getFriends().keySet();
-        Set<Long> otherUserFriends = userStorage.getUserById(otherId).getFriends().keySet();
+        Set<Long> userFriends = userStorage.getUserById(id).getFriends();
+        Set<Long> otherUserFriends = userStorage.getUserById(otherId).getFriends();
         Set<Long> commonFriends = new HashSet<>(userFriends);
         commonFriends.retainAll(otherUserFriends);
         return commonFriends.stream().map(userStorage::getUserById).collect(Collectors.toList());

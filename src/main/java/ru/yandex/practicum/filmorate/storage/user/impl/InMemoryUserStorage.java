@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -20,8 +22,8 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Map<Long, User> getAll() {
-        return users;
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
@@ -73,7 +75,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Произошло исключение!");
             throw new NotFoundException("Такого пользователя не существует.");
         }
-        if (!users.get(id).getFriends().containsKey(friendId)) {
+        if (!users.get(id).getFriends().contains(friendId)) {
             log.error("Произошло исключение!");
             throw new NotFoundException("Такого пользователя нет в друзьях.");
         }
