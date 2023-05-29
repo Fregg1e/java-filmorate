@@ -32,7 +32,7 @@ public class User {
     private LocalDate birthday;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<Long> friends = new HashSet<>();
+    private Set<Long> friends;
 
     public User() {
     }
@@ -47,6 +47,19 @@ public class User {
             this.name = name;
         }
         this.birthday = birthday;
+    }
+
+    public User(Long id, String email, String login, String name, LocalDate birthday, Set<Long> friends) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        if (name == null || name.equals("")) {
+            this.name = login;
+        } else {
+            this.name = name;
+        }
+        this.birthday = birthday;
+        this.friends = friends;
     }
 
     public void addFriend(Long id) {

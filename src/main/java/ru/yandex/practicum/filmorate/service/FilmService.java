@@ -10,9 +10,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,7 +28,7 @@ public class FilmService {
     }
 
     public List<Film> getAll() {
-        return new ArrayList<>(filmStorage.getAll().values());
+        return filmStorage.getAll();
     }
 
     public Film getFilmById(Long id) {
@@ -61,15 +59,6 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(Integer count) {
-        return getAll().stream()
-                .sorted(this::compare)
-                .limit(count)
-                .collect(Collectors.toList());
-    }
-
-    private int compare(Film f1, Film f2) {
-        Integer size1 = f1.getLikes().size();
-        Integer size2 = f2.getLikes().size();
-        return size1.compareTo(size2) * -1;
+        return filmStorage.getPopularFilms(count);
     }
 }
