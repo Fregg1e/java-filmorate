@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
 import java.util.List;
@@ -32,20 +33,25 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        return filmStorage.getFilmById(id);
+        Film film = filmStorage.getFilmById(id);
+        if (film == null) {
+            log.error("Произошло исключение! Такого фильма не существует.");
+            throw new NotFoundException("Такого фильма не существует.");
+        }
+        return film;
     }
 
     public Film create(Film film) {
         film.setId(idGenerator.generateId());
         filmStorage.create(film);
         log.debug("Создан фильм: {}", film);
-        return film;
+        return filmStorage.getFilmById(film.getId());
     }
 
     public Film update(Film film) {
         filmStorage.update(film);
         log.debug("Фильм с id={} обновлен.", film.getId());
-        return film;
+        return filmStorage.getFilmById(film.getId());
     }
 
     public void addLike(Long id, Long userId) {

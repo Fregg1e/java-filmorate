@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
 import java.util.HashSet;
@@ -30,20 +31,25 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        return userStorage.getUserById(id);
+        User user = userStorage.getUserById(id);
+        if (user == null) {
+            log.error("Произошло исключение! Такого пользователя не существует.");
+            throw new NotFoundException("Такого пользователя не существует.");
+        }
+        return user;
     }
 
     public User create(User user) {
         user.setId(idGenerator.generateId());
         userStorage.create(user);
         log.debug("Создан пользователь: {}", user);
-        return user;
+        return userStorage.getUserById(user.getId());
     }
 
     public User update(User user) {
         userStorage.update(user);
         log.debug("Пользователь с id={} обновлен.", user.getId());
-        return user;
+        return userStorage.getUserById(user.getId());
     }
 
     public void addFriend(Long id, Long friendId) {

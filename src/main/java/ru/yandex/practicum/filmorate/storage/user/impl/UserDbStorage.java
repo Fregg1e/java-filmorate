@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
@@ -34,16 +35,18 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User getUserById(Long id) {
         String sqlQueryUserData = "SELECT USER_ID, EMAIL, LOGIN, USER_NAME, BIRTHDAY FROM USERS WHERE USER_ID = ?;";
-        String sqlQueryUsersFriends = "SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID = ? AND STATUS = 'TRUE'";
-        User user = jdbcTemplate.queryForObject(sqlQueryUserData, this::mapRowToUser);
+        String sqlQueryUsersFriends = "SELECT FRIEND_ID FROM FRIENDS WHERE USER_ID = ? AND STATUS = TRUE;";
 
-        if (user == null) {
-            log.error("Произошло исключение!");
-            throw new NotFoundException("Такого пользователя не существует.");
+        try {
+            User user = jdbcTemplate.queryForObject(sqlQueryUserData, this::mapRowToUser, id);
+            if (user != null) {
+                user.setFriends(new HashSet<>(jdbcTemplate.query(sqlQueryUsersFriends,
+                        (rs, rowNum) -> rs.getLong("FRIEND_ID"), id)));
+            }
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
-        user.setFriends(new HashSet<>(jdbcTemplate.query(sqlQueryUsersFriends,
-                                      (rs, rowNum) -> rs.getLong("FRIEND_ID"), id)));
-        return user;
     }
 
     @Override
@@ -51,7 +54,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?);";
 
         if (getUserById(user.getId()) != null) {
-            log.error("Произошло исключение!");
+            log.error("Произошло исключение! Такой пользователь уже существует.");
             throw new AlreadyExistException("Такой пользователь уже существует.");
         }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
@@ -63,7 +66,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?;";
 
         if (getUserById(user.getId()) == null) {
-            log.error("Произошло исключение!");
+            log.error("Произошло исключение! Такого пользователя не существует.");
             throw new NotFoundException("Такого пользователя не существует.");
         }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
@@ -80,29 +83,42 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void addFriend(Long id, Long friendId) {
         String sqlQuery = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS) VALUES (?, ?, ?);";
+        String sqlQueryCheckFriend = "SELECT STATUS FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?;";
+        String sqlQueryUpdateFriend = "UPDATE FRIENDS SET STATUS = TRUE WHERE USER_ID = ? AND FRIEND_ID = ?;";
+        Boolean isFriend;
 
         if (getUserById(id) == null || getUserById(friendId) == null) {
-            log.error("Произошло исключение!");
+            log.error("Произошло исключение! Такого пользователя не существует.");
             throw new NotFoundException("Такого пользователя не существует.");
         }
-        jdbcTemplate.update(sqlQuery, id, friendId, true);
-        jdbcTemplate.update(sqlQuery, friendId, id, false);
+        try {
+            isFriend = jdbcTemplate.queryForObject(sqlQueryCheckFriend,
+                    (rs, rowNum) -> rs.getBoolean("STATUS"), friendId, id);
+        } catch (EmptyResultDataAccessException e) {
+            isFriend = null;
+        }
+        if (isFriend == null) {
+            jdbcTemplate.update(sqlQuery, id, friendId, true);
+            jdbcTemplate.update(sqlQuery, friendId, id, false);
+        } else if (isFriend.equals(false)) {
+            jdbcTemplate.update(sqlQueryUpdateFriend, friendId, id);
+        }
     }
 
     @Override
     public void removeFriend(Long id, Long friendId) {
-        String sqlQuery = "DELETE FROM FRIENDS WHERE USER_ID = ?;";
+        String sqlQuery = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?;";
 
         if (getUserById(id) == null || getUserById(friendId) == null) {
-            log.error("Произошло исключение!");
+            log.error("Произошло исключение! Такого пользователя не существует.");
             throw new NotFoundException("Такого пользователя не существует.");
         }
         if (!getUserById(id).getFriends().contains(friendId)) {
-            log.error("Произошло исключение!");
+            log.error("Произошло исключение! Такого пользователя нет в друзьях.");
             throw new NotFoundException("Такого пользователя нет в друзьях.");
         }
-        jdbcTemplate.update(sqlQuery, id);
-        jdbcTemplate.update(sqlQuery, friendId);
+        jdbcTemplate.update(sqlQuery, id, friendId);
+        jdbcTemplate.update(sqlQuery, friendId, id);
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
