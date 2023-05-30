@@ -58,7 +58,7 @@ public class UserDbStorage implements UserStorage {
             throw new AlreadyExistException("Такой пользователь уже существует.");
         }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
-                            user.getName(), Date.valueOf(user.getBirthday()));
+                user.getName(), Date.valueOf(user.getBirthday()));
     }
 
     @Override

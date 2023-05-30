@@ -28,19 +28,20 @@ public class FilmDbStorage implements FilmStorage {
     private final UserStorage userStorage;
 
     private final String sqlQueryFilm = "SELECT F.FILM_ID, " +
-                                        "F.FILM_NAME, " +
-                                        "F.DESCRIPTION, " +
-                                        "F.RELEASE_DATE, " +
-                                        "F.DURATION, " +
-                                        "F.MPA_ID, " +
-                                        "M.MPA_NAME " +
-                                        "FROM FILMS AS F " +
-                                        "LEFT OUTER JOIN MPA AS M ON F.MPA_ID = M.MPA_ID";
+            "F.FILM_NAME, " +
+            "F.DESCRIPTION, " +
+            "F.RELEASE_DATE, " +
+            "F.DURATION, " +
+            "F.MPA_ID, " +
+            "M.MPA_NAME " +
+            "FROM FILMS AS F " +
+            "LEFT OUTER JOIN MPA AS M ON F.MPA_ID = M.MPA_ID";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
     }
+
     @Override
     public List<Film> getAll() {
         String sqlQuery = sqlQueryFilm + ";";
@@ -70,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void create(Film film) {
         String sqlQuery = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID) " +
-                          "VALUES (?, ?, ?, ?, ?);";
+                "VALUES (?, ?, ?, ?, ?);";
 
         if (getFilmById(film.getId()) != null) {
             log.error("Произошло исключение! Такой фильм уже существует.");
@@ -92,7 +93,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Такого фильма не существует.");
         }
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), Date.valueOf(film.getReleaseDate()),
-                            film.getDuration(), film.getMpa().getId(), film.getId());
+                film.getDuration(), film.getMpa().getId(), film.getId());
         jdbcTemplate.update(sqlQueryDeleteGenres, film.getId());
         insertGenres(film);
     }

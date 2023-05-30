@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface MPAStorage {
     List<MPA> getAll();
+
     MPA getGenreById(Integer id);
 }

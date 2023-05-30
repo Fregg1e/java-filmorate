@@ -12,7 +12,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PastLocalDateConstrain {
     String message() default "Неправильная дата.";
+
     String current();
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

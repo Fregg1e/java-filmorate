@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class FilmGenerator {
     public static Film getFilm(Long id, String name, String description,
-                                    LocalDate releaseDate, Integer duration) {
+            LocalDate releaseDate, Integer duration) {
         Film film = new Film();
         film.setId(id);
         film.setName(name);

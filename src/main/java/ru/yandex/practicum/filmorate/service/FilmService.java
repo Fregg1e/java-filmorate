@@ -22,7 +22,7 @@ public class FilmService {
 
     @Autowired
     public FilmService(@Qualifier("filmIdGenerator") IdGenerator idGenerator,
-                       FilmStorage filmStorage, UserStorage userStorage) {
+            FilmStorage filmStorage, UserStorage userStorage) {
         this.idGenerator = idGenerator;
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
