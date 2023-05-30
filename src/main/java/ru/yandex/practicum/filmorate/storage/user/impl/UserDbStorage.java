@@ -93,7 +93,7 @@ public class UserDbStorage implements UserStorage {
         }
         try {
             isFriend = jdbcTemplate.queryForObject(sqlQueryCheckFriend,
-                    (rs, rowNum) -> rs.getBoolean("STATUS"), friendId, id);
+                    (rs, rowNum) -> rs.getBoolean("STATUS"), id, friendId);
         } catch (EmptyResultDataAccessException e) {
             isFriend = null;
         }
@@ -101,7 +101,7 @@ public class UserDbStorage implements UserStorage {
             jdbcTemplate.update(sqlQuery, id, friendId, true);
             jdbcTemplate.update(sqlQuery, friendId, id, false);
         } else if (isFriend.equals(false)) {
-            jdbcTemplate.update(sqlQueryUpdateFriend, friendId, id);
+            jdbcTemplate.update(sqlQueryUpdateFriend, id, friendId);
         }
     }
 

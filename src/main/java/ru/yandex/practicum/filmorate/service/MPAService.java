@@ -18,7 +18,7 @@ public class MPAService {
         return mpaStorage.getAll();
     }
 
-    public MPA getGenreById(Integer id) {
-        return mpaStorage.getGenreById(id);
+    public MPA getMPAById(Integer id) {
+        return mpaStorage.getMPAById(id);
     }
 }

@@ -28,7 +28,7 @@ public class MPADbStorage implements MPAStorage {
     }
 
     @Override
-    public MPA getGenreById(Integer id) {
+    public MPA getMPAById(Integer id) {
         String sqlQuery = "SELECT MPA_ID, MPA_NAME FROM MPA WHERE MPA_ID = ?;";
         try {
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMPA, id);
