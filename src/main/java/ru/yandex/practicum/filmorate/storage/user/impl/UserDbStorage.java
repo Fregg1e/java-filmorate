@@ -4,14 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashSet;
 import java.util.List;
 
@@ -52,10 +52,18 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Long create(User user) {
         String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
-                user.getName(), Date.valueOf(user.getBirthday()));
-        return jdbcTemplate.queryForObject("SELECT MAX(USER_ID) FROM USERS;", Long.class);
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getLogin());
+            ps.setString(3, user.getName());
+            ps.setDate(4, Date.valueOf(user.getBirthday()));
+            return ps;
+        }, keyHolder);
+
+        return (Long) keyHolder.getKey();
     }
 
     @Override
@@ -76,6 +84,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Long id, Long friendId) {
+        getUserById(id);
+        getUserById(friendId);
+
         String sqlQuery = "MERGE INTO FRIENDS AS F "
                 + "USING VALUES (?, ?) AS U(U1, U2) ON F.USER_ID = U.U1 AND F.FRIEND_ID = U.U2 "
                 + "WHEN MATCHED AND F.STATUS = FALSE THEN UPDATE "
@@ -84,8 +95,6 @@ public class UserDbStorage implements UserStorage {
                 + "INSERT (USER_ID, FRIEND_ID, STATUS) "
                 + "VALUES (U1, U2, ?);";
 
-        getUserById(id);
-        getUserById(friendId);
         jdbcTemplate.update(sqlQuery, id, friendId, true);
         jdbcTemplate.update(sqlQuery, friendId, id, false);
     }
