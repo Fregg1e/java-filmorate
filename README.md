@@ -47,13 +47,13 @@ Java-Filmorate - это сервис для работы с фильмами и 
 * `DESCRIPTION` - описание фильма
 * `RELEASE_DATE` - дата выхода фильма
 * `DURATION` - продолжительность (в минутах) фильма
-* внешний ключ `MPA_ID` - идентификатор возрастного рейтинга
+* внешний ключ `MPA_RATING_ID` - идентификатор возрастного рейтинга
 
-**MPA** - содержит типы возрастных рейтингов Ассоциации кинокомпаний
+**MPA_RATING** - содержит типы возрастных рейтингов Ассоциации кинокомпаний
 Таблица включает такие поля:
 
-* первичный ключ `MPA_ID` - идентификатор возрастного рейтинга
-* `MPA_NAME` - название возрастного рейтинга:
+* первичный ключ `MPA_RATING_ID` - идентификатор возрастного рейтинга
+* `MPA_RATING_NAME` - название возрастного рейтинга:
     - `G`
     - `PG`
     - `PG-13`
@@ -151,16 +151,11 @@ WHERE FILM_ID = 1;
 * Получение топ 10 популярных фильмов:
 
 ```
-SELECT F.FILM_ID,
-       F.FILM_NAME,
-       F.DESCRIPTION,
-       F.RELEASE_DATE,
-       F.DURATION,
-       F.MPA_ID,
-       M.MPA_NAME
+SELECT F.*,
+       M.MPA_RATING_NAME
 FROM FILMS AS F
-LEFT OUTER JOIN MPA AS M ON F.MPA_ID = M.MPA_ID
-LEFT OUTER JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID
+INNER JOIN MPA_RATING AS M ON F.MPA_RATING_ID = M.MPA_RATING_ID
+INNER JOIN LIKES AS L ON F.FILM_ID = L.FILM_ID
 GROUP BY F.FILM_ID
 ORDER BY COUNT(L.USER_ID) DESC
 LIMIT 10;

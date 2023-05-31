@@ -2,12 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.util.generator.IdGenerator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +14,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class UserService {
-    private final IdGenerator idGenerator;
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(@Qualifier("userIdGenerator") IdGenerator idGenerator, UserStorage userStorage) {
-        this.idGenerator = idGenerator;
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -31,19 +26,13 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        User user = userStorage.getUserById(id);
-        if (user == null) {
-            log.error("Произошло исключение! Такого пользователя не существует.");
-            throw new NotFoundException("Такого пользователя не существует.");
-        }
-        return user;
+        return userStorage.getUserById(id);
     }
 
     public User create(User user) {
-        user.setId(idGenerator.generateId());
-        userStorage.create(user);
+        Long id = userStorage.create(user);
         log.debug("Создан пользователь: {}", user);
-        return userStorage.getUserById(user.getId());
+        return userStorage.getUserById(id);
     }
 
     public User update(User user) {

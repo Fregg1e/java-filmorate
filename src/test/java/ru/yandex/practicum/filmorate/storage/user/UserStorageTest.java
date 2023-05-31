@@ -78,8 +78,13 @@ class UserStorageTest {
     @DisplayName("5) Проверка удаления пользователя")
     void deleteUserByIdTest() {
         userDbStorage.deleteById(1L);
-        User user = userDbStorage.getUserById(1L);
-        assertNull(user);
+        String message = null;
+        try {
+            userDbStorage.getUserById(1L);
+        } catch (NotFoundException e) {
+            message = e.getMessage();
+        }
+        assertEquals("Такого пользователя не существует.", message);
     }
 
     @Test

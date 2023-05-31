@@ -38,12 +38,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void create(Film film) {
+    public Long create(Film film) {
         if (films.containsValue(film)) {
             log.error("Произошло исключение!");
             throw new AlreadyExistException("Такой фильм уже существует.");
         }
         films.put(film.getId(), film);
+        return film.getId();
     }
 
     @Override

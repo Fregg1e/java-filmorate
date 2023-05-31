@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
 import java.sql.Date;
@@ -45,30 +44,25 @@ public class UserDbStorage implements UserStorage {
             }
             return user;
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            log.error("Произошло исключение! Такого пользователя не существует.");
+            throw new NotFoundException("Такого пользователя не существует.");
         }
     }
 
     @Override
-    public void create(User user) {
+    public Long create(User user) {
         String sqlQuery = "INSERT INTO USERS (EMAIL, LOGIN, USER_NAME, BIRTHDAY) VALUES (?, ?, ?, ?);";
 
-        if (getUserById(user.getId()) != null) {
-            log.error("Произошло исключение! Такой пользователь уже существует.");
-            throw new AlreadyExistException("Такой пользователь уже существует.");
-        }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
                 user.getName(), Date.valueOf(user.getBirthday()));
+        return jdbcTemplate.queryForObject("SELECT MAX(USER_ID) FROM USERS;", Long.class);
     }
 
     @Override
     public void update(User user) {
         String sqlQuery = "UPDATE USERS SET EMAIL = ?, LOGIN = ?, USER_NAME = ?, BIRTHDAY = ? WHERE USER_ID = ?;";
 
-        if (getUserById(user.getId()) == null) {
-            log.error("Произошло исключение! Такого пользователя не существует.");
-            throw new NotFoundException("Такого пользователя не существует.");
-        }
+        getUserById(user.getId());
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
                 user.getName(), Date.valueOf(user.getBirthday()), user.getId());
     }
@@ -82,38 +76,27 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(Long id, Long friendId) {
-        String sqlQuery = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID, STATUS) VALUES (?, ?, ?);";
-        String sqlQueryCheckFriend = "SELECT STATUS FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?;";
-        String sqlQueryUpdateFriend = "UPDATE FRIENDS SET STATUS = TRUE WHERE USER_ID = ? AND FRIEND_ID = ?;";
-        Boolean isFriend;
+        String sqlQuery = "MERGE INTO FRIENDS AS F "
+                + "USING VALUES (?, ?) AS U(U1, U2) ON F.USER_ID = U.U1 AND F.FRIEND_ID = U.U2 "
+                + "WHEN MATCHED AND F.STATUS = FALSE THEN UPDATE "
+                + "SET STATUS = TRUE "
+                + "WHEN NOT MATCHED THEN "
+                + "INSERT (USER_ID, FRIEND_ID, STATUS) "
+                + "VALUES (U1, U2, ?);";
 
-        if (getUserById(id) == null || getUserById(friendId) == null) {
-            log.error("Произошло исключение! Такого пользователя не существует.");
-            throw new NotFoundException("Такого пользователя не существует.");
-        }
-        try {
-            isFriend = jdbcTemplate.queryForObject(sqlQueryCheckFriend,
-                    (rs, rowNum) -> rs.getBoolean("STATUS"), id, friendId);
-        } catch (EmptyResultDataAccessException e) {
-            isFriend = null;
-        }
-        if (isFriend == null) {
-            jdbcTemplate.update(sqlQuery, id, friendId, true);
-            jdbcTemplate.update(sqlQuery, friendId, id, false);
-        } else if (isFriend.equals(false)) {
-            jdbcTemplate.update(sqlQueryUpdateFriend, id, friendId);
-        }
+        getUserById(id);
+        getUserById(friendId);
+        jdbcTemplate.update(sqlQuery, id, friendId, true);
+        jdbcTemplate.update(sqlQuery, friendId, id, false);
     }
 
     @Override
     public void removeFriend(Long id, Long friendId) {
         String sqlQuery = "DELETE FROM FRIENDS WHERE USER_ID = ? AND FRIEND_ID = ?;";
 
-        if (getUserById(id) == null || getUserById(friendId) == null) {
-            log.error("Произошло исключение! Такого пользователя не существует.");
-            throw new NotFoundException("Такого пользователя не существует.");
-        }
-        if (!getUserById(id).getFriends().contains(friendId)) {
+        User user = getUserById(id);
+        getUserById(friendId);
+        if (!user.getFriends().contains(friendId)) {
             log.error("Произошло исключение! Такого пользователя нет в друзьях.");
             throw new NotFoundException("Такого пользователя нет в друзьях.");
         }

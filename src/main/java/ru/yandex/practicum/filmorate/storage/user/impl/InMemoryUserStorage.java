@@ -36,12 +36,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void create(User user) {
+    public Long create(User user) {
         if (users.containsValue(user)) {
             log.error("Произошло исключение!");
             throw new AlreadyExistException("Такой пользователь уже существует.");
         }
         users.put(user.getId(), user);
+        return user.getId();
     }
 
     @Override

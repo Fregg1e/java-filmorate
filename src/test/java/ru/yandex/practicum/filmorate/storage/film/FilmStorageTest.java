@@ -20,7 +20,6 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -84,8 +83,13 @@ class FilmStorageTest {
     @DisplayName("5) Проверка удаления фильма")
     void deleteFilmByIdTest() {
         filmDbStorage.deleteById(1L);
-        Film film = filmDbStorage.getFilmById(1L);
-        assertNull(film);
+        String message = null;
+        try {
+            filmDbStorage.getFilmById(1L);
+        } catch (NotFoundException e) {
+            message = e.getMessage();
+        }
+        assertEquals("Такого фильма не существует.", message);
     }
 
     @Test

@@ -23,25 +23,25 @@ public class MPADbStorage implements MPAStorage {
 
     @Override
     public List<MPA> getAll() {
-        String sqlQuery = "SELECT MPA_ID, MPA_NAME FROM MPA;";
+        String sqlQuery = "SELECT MPA_RATING_ID, MPA_RATING_NAME FROM MPA_RATING;";
         return jdbcTemplate.query(sqlQuery, this::mapRowToMPA);
     }
 
     @Override
     public MPA getMPAById(Integer id) {
-        String sqlQuery = "SELECT MPA_ID, MPA_NAME FROM MPA WHERE MPA_ID = ?;";
+        String sqlQuery = "SELECT MPA_RATING_ID, MPA_RATING_NAME FROM MPA_RATING WHERE MPA_RATING_ID = ?;";
         try {
             return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMPA, id);
         } catch (EmptyResultDataAccessException e) {
-            log.error("Произошло исключение! Такого MPA не существует.");
-            throw new NotFoundException("Такого MPA не существует.");
+            log.error("Произошло исключение! Такого MPA_RATING не существует.");
+            throw new NotFoundException("Такого MPA_RATING не существует.");
         }
     }
 
     private MPA mapRowToMPA(ResultSet resultSet, int rowNum) throws SQLException {
         return MPA.builder()
-                .id(resultSet.getInt("MPA_ID"))
-                .name(resultSet.getString("MPA_NAME"))
+                .id(resultSet.getInt("MPA_RATING_ID"))
+                .name(resultSet.getString("MPA_RATING_NAME"))
                 .build();
     }
 }

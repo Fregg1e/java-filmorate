@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
 import java.sql.Date;
@@ -27,15 +26,10 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
 
-    private final String sqlQueryFilm = "SELECT F.FILM_ID, " +
-            "F.FILM_NAME, " +
-            "F.DESCRIPTION, " +
-            "F.RELEASE_DATE, " +
-            "F.DURATION, " +
-            "F.MPA_ID, " +
-            "M.MPA_NAME " +
+    private final String sqlQueryFilm = "SELECT F.*, " +
+            "M.MPA_RATING_NAME " +
             "FROM FILMS AS F " +
-            "LEFT OUTER JOIN MPA AS M ON F.MPA_ID = M.MPA_ID";
+            "INNER JOIN MPA_RATING AS M ON F.MPA_RATING_ID = M.MPA_RATING_ID";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -64,34 +58,31 @@ public class FilmDbStorage implements FilmStorage {
             }
             return film;
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            log.error("Произошло исключение! Такого фильма не существует.");
+            throw new NotFoundException("Такого фильма не существует.");
         }
     }
 
     @Override
-    public void create(Film film) {
-        String sqlQuery = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_ID) " +
+    public Long create(Film film) {
+        String sqlQuery = "INSERT INTO FILMS (FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, MPA_RATING_ID) " +
                 "VALUES (?, ?, ?, ?, ?);";
 
-        if (getFilmById(film.getId()) != null) {
-            log.error("Произошло исключение! Такой фильм уже существует.");
-            throw new AlreadyExistException("Такой фильм уже существует.");
-        }
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), Date.valueOf(film.getReleaseDate()),
                 film.getDuration(), film.getMpa().getId());
+        Long filmId = jdbcTemplate.queryForObject("SELECT MAX(FILM_ID) FROM FILMS;", Long.class);
+        film.setId(filmId);
         insertGenres(film);
+        return filmId;
     }
 
     @Override
     public void update(Film film) {
         String sqlQuery = "UPDATE FILMS SET FILM_NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, " +
-                "DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?;";
+                "DURATION = ?, MPA_RATING_ID = ? WHERE FILM_ID = ?;";
         String sqlQueryDeleteGenres = "DELETE FROM FILMS_GENRES WHERE FILM_ID = ?;";
 
-        if (getFilmById(film.getId()) == null) {
-            log.error("Произошло исключение! Такого фильма не существует.");
-            throw new NotFoundException("Такого фильма не существует.");
-        }
+        getFilmById(film.getId());
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), Date.valueOf(film.getReleaseDate()),
                 film.getDuration(), film.getMpa().getId(), film.getId());
         jdbcTemplate.update(sqlQueryDeleteGenres, film.getId());
@@ -109,10 +100,8 @@ public class FilmDbStorage implements FilmStorage {
     public void addLike(Long id, User user) {
         String sqlQuery = "INSERT INTO LIKES (FILM_ID, USER_ID) VALUES (?, ?);";
 
-        if (getFilmById(id) == null || userStorage.getUserById(user.getId()) == null) {
-            log.error("Произошло исключение! Такого фильма или пользователя не существует.");
-            throw new NotFoundException("Такого фильма или пользователя не существует.");
-        }
+        getFilmById(id);
+        userStorage.getUserById(user.getId());
         jdbcTemplate.update(sqlQuery, id, user.getId());
     }
 
@@ -120,10 +109,8 @@ public class FilmDbStorage implements FilmStorage {
     public void removeLike(Long id, User user) {
         String sqlQuery = "DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?;";
 
-        if (getFilmById(id) == null || user == null) {
-            log.error("Произошло исключение! Такого фильма или пользователя не существует.");
-            throw new NotFoundException("Такого фильма или пользователя не существует.");
-        }
+        getFilmById(id);
+        userStorage.getUserById(user.getId());
         jdbcTemplate.update(sqlQuery, id, user.getId());
     }
 
@@ -154,7 +141,7 @@ public class FilmDbStorage implements FilmStorage {
     private List<Genre> getFilmGenres(Long id) {
         String sqlQueryFilmsGenres = "SELECT FG.GENRE_ID, G.GENRE_NAME " +
                 "FROM FILMS_GENRES AS FG " +
-                "LEFT OUTER JOIN GENRES AS G ON FG.GENRE_ID = G.GENRE_ID " +
+                "INNER JOIN GENRES AS G ON FG.GENRE_ID = G.GENRE_ID " +
                 "WHERE FILM_ID = ?;";
         return jdbcTemplate.query(sqlQueryFilmsGenres, this::mapRowToGenre, id);
     }
@@ -167,8 +154,8 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getDate("RELEASE_DATE").toLocalDate())
                 .duration(resultSet.getInt("DURATION"))
                 .mpa(MPA.builder()
-                        .id(resultSet.getInt("MPA_ID"))
-                        .name(resultSet.getString("MPA_NAME"))
+                        .id(resultSet.getInt("MPA_RATING_ID"))
+                        .name(resultSet.getString("MPA_RATING_NAME"))
                         .build())
                 .build();
     }
