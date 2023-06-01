@@ -1,19 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.util.validator.date.PastLocalDateConstrain;
 
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@Builder
 public class Film {
     @EqualsAndHashCode.Exclude
     private Long id;
@@ -27,15 +28,13 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность должна быть положительной.")
     private Integer duration;
+    @EqualsAndHashCode.Exclude
+    private Set<Genre> genres;
+    @EqualsAndHashCode.Exclude
+    private MPA mpa;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Set<String> genre;
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    private FilmRating rating;
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    private Set<Long> likes = new HashSet<>();
+    private Set<Long> likes;
 
     public void addLike(Long id) {
         likes.add(id);

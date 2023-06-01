@@ -8,8 +8,11 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.util.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.util.exception.NotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -21,8 +24,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Film> getAll() {
-        return films;
+    public List<Film> getAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
@@ -35,12 +38,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void create(Film film) {
+    public Long create(Film film) {
         if (films.containsValue(film)) {
             log.error("Произошло исключение!");
             throw new AlreadyExistException("Такой фильм уже существует.");
         }
         films.put(film.getId(), film);
+        return film.getId();
     }
 
     @Override
@@ -73,5 +77,19 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Такого фильма не существует.");
         }
         films.get(id).removeLike(user.getId());
+    }
+
+    @Override
+    public List<Film> getPopularFilms(Integer count) {
+        return getAll().stream()
+                .sorted(this::compare)
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    private int compare(Film f1, Film f2) {
+        Integer size1 = f1.getLikes().size();
+        Integer size2 = f2.getLikes().size();
+        return size1.compareTo(size2) * -1;
     }
 }

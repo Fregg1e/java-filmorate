@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,10 +11,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 @Data
+@Builder
 public class User {
     @EqualsAndHashCode.Exclude
     private Long id;
@@ -30,7 +31,10 @@ public class User {
     private LocalDate birthday;
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private Map<Long, Boolean> friends = new HashMap<>();
+    private Set<Long> friends;
+
+    public User() {
+    }
 
     public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
@@ -44,12 +48,25 @@ public class User {
         this.birthday = birthday;
     }
 
+    public User(Long id, String email, String login, String name, LocalDate birthday, Set<Long> friends) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        if (name == null || name.equals("")) {
+            this.name = login;
+        } else {
+            this.name = name;
+        }
+        this.birthday = birthday;
+        this.friends = friends;
+    }
+
     public void addFriend(Long id) {
-        friends.put(id, false);
+        friends.add(id);
     }
 
     public void confirmFriendRequest(Long id) {
-        friends.put(id, true);
+        friends.add(id);
     }
 
     public void removeFriend(Long id) {

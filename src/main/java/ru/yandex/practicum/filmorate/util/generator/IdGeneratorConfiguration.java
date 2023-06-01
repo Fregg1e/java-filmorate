@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class IdGeneratorConfiguration {
-    @Bean("userIdGenerator")
+    @Bean
     public IdGenerator userIdGenerator() {
         return new IdGenerator();
     }
 
-    @Bean("filmIdGenerator")
+    @Bean
     public IdGenerator filmIdGenerator() {
         return new IdGenerator();
     }
